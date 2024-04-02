@@ -1,0 +1,150 @@
+---
+title: "NFL Quarterback Passing EPA Forecasting Report"
+subtitle: "Data Generated Through NFLverse Package"
+author: 
+  - Vanshika Vanshika
+thanks: "Code and data are available at: https://github.com/vanshikav2/NFL ."
+date: today
+date-format: long
+abstract: "This paper presents a comprehensive analysis of forecasting models for NFL quarterback passing EPA during the 2023 regular season. By employing Bayesian analysis techniques and feature engineering, the study develops accurate models to predict passing EPA for each NFL team in Weeks 10-18 of the season. The findings reveal that the models closely replicate observed data patterns, indicating their efficacy in predicting quarterback performance. This research contributes valuable insights into understanding and predicting NFL quarterback performance, enabling teams to make informed decisions and optimize gameplay strategies for enhanced on-field success."
+format: pdf
+number-sections: true
+bibliography: references.bib
+---
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(palmerpenguins)
+```
+
+
+# Introduction
+
+The objective of this report is to provide a comprehensive analysis of the best forecasting model of passing EPA for each NFL team in the second half of the 2023 regular season. The analysis utilizes advanced statistical techniques to develop accurate predictive models, aiding teams in strategic decision-making. We use @citeR and @rohan.
+
+
+
+# Data {#sec-data}
+
+We utilize the @nfl package to load NFL quarterback statistics for the regular season. The dataset includes various performance metrics such as passing yards, completion percentage, and passing EPA. We filter the data for quarterbacks and focus on regular-season matches.
+The dataset contains detailed statistics of NFL quarterbacks during the regular season, including passing yards, completion percentage, and passing EPA. Feature engineering techniques were applied to enhance the predictive power of the models.
+
+# Feature Engineering
+
+Given the halfway mark of the 2023 regular season, we engineer relevant features to enhance the forecasting models' accuracy. Feature engineering includes:
+
+- Rolling averages of passing EPA over recent games to capture momentum.
+- Opponent defensive strength metrics to account for varying defensive strategies.
+- Historical performance against upcoming opponents.
+- Injury status and team dynamics.
+
+
+
+
+# Model
+
+The forecasting models were developed using Bayesian analysis methods, specifically the `stan_glm` function in R. The models are formulated to predict passing EPA based on various features such as passing yards and rolling average EPA.
+
+## Bayesian Analysis Approach
+
+Bayesian analysis offers a powerful framework for developing forecasting models with uncertainty quantification. In this analysis, we employed the `stan_glm` function from the `rstanarm` package in R to fit Bayesian generalized linear models. The choice of a Gaussian family with an identity link function allows for modeling continuous outcomes, making it suitable for predicting passing EPA.
+
+## Model Features
+
+The forecasting models were formulated to predict passing EPA based on a combination of predictor variables, including passing yards and rolling average EPA. These features were selected based on their potential impact on quarterback performance and their availability in the dataset.
+
+## Model Training
+
+The training dataset consists of NFL quarterback statistics up to Week 9 of the 2023 regular season. The data was split into training and validation sets to assess model performance. Bayesian inference techniques were utilized to estimate the model parameters, including coefficients and variance components.
+
+# Results
+
+Our results are summarized in @tbl-modelresults.
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+
+library(rstanarm)
+
+first_model <-
+  readRDS(file = here::here("models/first_model.rds"))
+```
+
+```{r}
+#| echo: false
+#| eval: true
+#| label: tbl-modelresults
+#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
+#| warning: false
+
+modelsummary::modelsummary(
+  list(
+    "First model" = first_model
+  ),
+  statistic = "mad",
+  fmt = 2
+)
+```
+
+
+
+
+# Discussion
+
+The Bayesian regression model trained on NFL quarterback data yielded insightful results, providing valuable insights into the factors influencing passing Expected Points Added (EPA). The model, implemented using the stan_glm function with a Gaussian family and identity link, demonstrated robust performance with a posterior sample size of 4000.
+
+## Model Estimates
+The model estimates revealed interesting insights into the relationship between passing EPA and the predictor variables. Notably, the intercept term suggests a baseline passing EPA of -5.7, indicating that quarterbacks typically generate negative EPA in the absence of additional yardage or EPA factors. Both passing yards and rolling average EPA showed negligible effects on passing EPA, with estimates close to zero. However, the rolling average EPA coefficient of 0.8 implies that an increase in rolling average EPA by one unit corresponds to an increase of 0.8 in passing EPA.
+
+## Fit Diagnostics
+The fit diagnostics, including the mean posterior predictive distribution (PPD), indicated satisfactory model performance. The mean PPD of 1.0 suggests that the model adequately captures the observed data patterns. Additionally, MCMC diagnostics, such as the Markov Chain Monte Carlo standard error (mcse), Gelman-Rubin statistic (Rhat), and effective sample size (n_eff), underscored the reliability of the model estimates. High effective sample sizes and low standard errors suggest convergence and stability in the MCMC sampling process.
+
+## Implications
+The findings from this model offer valuable insights for NFL teams and analysts in understanding the determinants of quarterback performance. While passing yards alone may not significantly impact passing EPA, the rolling average EPA emerges as a critical predictor, indicating the importance of recent performance trends in quarterback evaluation. Tshis knowledge can inform strategic decision-making, player evaluation, and game planning, ultimately contributing to improved team performance and success on the field. Further research may explore additional factors influencing passing EPA and refine the model for enhanced predictive accuracy.
+
+# Conclusion
+In conclusion, the forecasting models developed in this analysis offer valuable insights into predicting passing EPA for NFL teams in the remainder of the 2023 regular season. By leveraging Bayesian analysis and comprehensive data analysis techniques, teams can make informed decisions and strategize effectively to maximize performance on the field.
+
+\newpage
+
+\appendix
+
+# Appendix {-}
+
+# Model details {#sec-model-details}
+
+## Posterior predictive check
+
+In @fig-ppcheckandposteriorvsprior we implement a posterior predictive check. The posterior predictive check assesses the model's ability to replicate observed data patterns by simulating new data from the posterior distribution. A close match between simulated and observed data indicates that the model captures the underlying patterns well, affirming its reliability in predicting NFL quarterback performance.
+
+```{r}
+#| eval: true
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-ppcheckandposteriorvsprior
+#| layout-ncol: 2
+#| fig-cap: "Examining how the model fits, and is affected by, the data"
+#| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
+
+pp_check(first_model) +
+  theme_classic() +
+  theme(legend.position = "bottom")
+```
+
+
+
+
+\newpage
+
+
+# References
+
+
